@@ -1,0 +1,43 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  slug: string;
+}
+
+const { title, description, date, slug } = Astro.props;
+
+const formattedDate = new Intl.DateTimeFormat('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+}).format(date);
+---
+
+<a href={`/blog/${slug}`} class="blog-card block group">
+  <div class="p-6 rounded-lg relative" style="background-color: rgba(0, 0, 0, 0.05); overflow: hidden; transition: all 0.2s ease;">
+    <time class="text-sm opacity-60 mb-3 block">{formattedDate}</time>
+    <h3 class="text-2xl font-bold mb-3 group-hover:opacity-70" style="transition: opacity 0.2s ease;">{title}</h3>
+    <p class="opacity-60 leading-relaxed">{description}</p>
+  </div>
+</a>
+
+<style>
+  .blog-card {
+    transition: transform 0.2s ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .blog-card > div {
+    position: relative;
+    z-index: 10;
+  }
+
+  .blog-card > div:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+</style>

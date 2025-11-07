@@ -1,0 +1,37 @@
+---
+import Container from "@/components/Container.astro";
+import { SITE, SOCIALS } from "@/consts";
+---
+
+<footer class="border-t mt-20 footer-text">
+  <Container>
+    <div class="py-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="text-sm opacity-60">
+        © {new Date().getFullYear()} {SITE.NAME}. All rights reserved.
+      </div>
+      <div class="flex gap-4">
+        {SOCIALS.map((social) => (
+          <a
+            href={social.HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm hover:opacity-70 transition-opacity"
+          >
+            {social.NAME}
+          </a>
+        ))}
+      </div>
+    </div>
+  </Container>
+</footer>
+
+<style>
+  footer {
+    color: inherit;
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  :global(.red-mode) footer {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+</style>

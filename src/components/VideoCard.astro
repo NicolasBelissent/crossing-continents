@@ -1,0 +1,43 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  videoUrl: string;
+  thumbnail?: string;
+}
+
+const { title, description, videoUrl, thumbnail } = Astro.props;
+---
+
+<div class="video-card group">
+  <div class="aspect-video overflow-hidden rounded-lg relative" style="background-color: rgba(0, 0, 0, 0.05); overflow: hidden; transition: all 0.2s ease;">
+    <video
+      class="w-full h-full object-cover"
+      controls
+      preload="metadata"
+      poster={thumbnail}
+    >
+      <source src={videoUrl} type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+  <div class="mt-4 p-4 rounded-lg relative" style="background-color: rgba(0, 0, 0, 0.05); overflow: hidden; transition: all 0.2s ease;">
+    <h3 class="text-xl font-semibold mb-2">{title}</h3>
+    <p class="opacity-60">{description}</p>
+  </div>
+</div>
+
+<style>
+  .video-card {
+    transition: transform 0.2s ease;
+  }
+
+  .video-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .video-card > div {
+    position: relative;
+    z-index: 10;
+  }
+</style>
