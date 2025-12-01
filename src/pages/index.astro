@@ -148,14 +148,31 @@ const videos = [
     </Container>
   </section>
 
-  <!-- Floating Subscribe Button -->
-  <button
-    id="floating-subscribe-btn"
-    class="fixed bottom-8 right-8 px-6 py-3 rounded-full font-semibold shadow-lg transition-all duration-300 hover:scale-105 z-50"
-    style="background-color: rgba(0, 0, 0, 0.9); color: white;"
-  >
-    🔔 Subscribe
-  </button>
+  <!-- Sponsors Section -->
+  <section id="sponsors" class="py-20 scroll-mt-20 relative" style="z-index: 10;">
+    <Container>
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Our Sponsors</h2>
+        <p class="text-lg opacity-80">Thank you to the brands that support our journey</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center max-w-4xl mx-auto">
+        <!-- Sponsor logos - replace with actual sponsor images -->
+        <a href="https://www.patagonia.com" target="_blank" rel="noopener" class="sponsor-logo w-32 h-32 flex items-center justify-center rounded-lg p-6 transition-transform hover:scale-105" style="background-color: rgba(0, 0, 0, 0.05);">
+          <span class="text-xl font-bold opacity-60">Patagonia</span>
+        </a>
+        <a href="https://www.redbull.com" target="_blank" rel="noopener" class="sponsor-logo w-32 h-32 flex items-center justify-center rounded-lg p-6 transition-transform hover:scale-105" style="background-color: rgba(0, 0, 0, 0.05);">
+          <span class="text-xl font-bold opacity-60">Red Bull</span>
+        </a>
+        <a href="https://www.gopro.com" target="_blank" rel="noopener" class="sponsor-logo w-32 h-32 flex items-center justify-center rounded-lg p-6 transition-transform hover:scale-105" style="background-color: rgba(0, 0, 0, 0.05);">
+          <span class="text-xl font-bold opacity-60">GoPro</span>
+        </a>
+        <a href="https://www.thenorthface.com" target="_blank" rel="noopener" class="sponsor-logo w-32 h-32 flex items-center justify-center rounded-lg p-6 transition-transform hover:scale-105" style="background-color: rgba(0, 0, 0, 0.05);">
+          <span class="text-xl font-bold opacity-60">The North Face</span>
+        </a>
+      </div>
+    </Container>
+  </section>
+
 </Layout>
 
 <style>
@@ -181,19 +198,6 @@ const videos = [
 
   html {
     scroll-behavior: smooth;
-  }
-
-  #floating-subscribe-btn {
-    animation: subtle-pulse 3s ease-in-out infinite;
-  }
-
-  @keyframes subtle-pulse {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
   }
 
   #subscribe-message.show {
@@ -226,8 +230,6 @@ const videos = [
       subscribeMessage.className = 'mt-4 text-sm show';
 
       try {
-        // TODO: Replace with your actual subscription endpoint
-        // Options: Mailchimp, ConvertKit, Buttondown, or custom API
         const response = await fetch('/api/subscribe', {
           method: 'POST',
           headers: {
@@ -236,22 +238,23 @@ const videos = [
           body: JSON.stringify({ email }),
         });
 
+        const data = await response.json();
+
         if (response.ok) {
           subscribeMessage.textContent = '✓ Successfully subscribed! Check your email for confirmation.';
           subscribeMessage.className = 'mt-4 text-sm show success';
           emailInput.value = '';
+        } else if (response.status === 409) {
+          subscribeMessage.textContent = '✓ You\'re already subscribed!';
+          subscribeMessage.className = 'mt-4 text-sm show success';
+          emailInput.value = '';
         } else {
-          throw new Error('Subscription failed');
+          subscribeMessage.textContent = '✗ ' + (data.error || 'Something went wrong. Please try again.');
+          subscribeMessage.className = 'mt-4 text-sm show error';
         }
       } catch (error) {
-        // For now, just show success (remove when API is ready)
-        subscribeMessage.textContent = '✓ Thanks for subscribing! (Demo mode - no email sent)';
-        subscribeMessage.className = 'mt-4 text-sm show success';
-        emailInput.value = '';
-
-        // In production, show error:
-        // subscribeMessage.textContent = '✗ Something went wrong. Please try again.';
-        // subscribeMessage.className = 'mt-4 text-sm show error';
+        subscribeMessage.textContent = '✗ Something went wrong. Please try again.';
+        subscribeMessage.className = 'mt-4 text-sm show error';
       }
 
       // Hide message after 5 seconds
@@ -261,32 +264,4 @@ const videos = [
     });
   }
 
-  // Floating button scroll to subscribe section
-  const floatingBtn = document.getElementById('floating-subscribe-btn');
-  if (floatingBtn) {
-    floatingBtn.addEventListener('click', () => {
-      document.getElementById('subscribe')?.scrollIntoView({ behavior: 'smooth' });
-    });
-  }
-
-  // Hide floating button when subscribe section is visible
-  const subscribeSection = document.getElementById('subscribe');
-  if (subscribeSection && floatingBtn) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            floatingBtn.style.opacity = '0';
-            floatingBtn.style.pointerEvents = 'none';
-          } else {
-            floatingBtn.style.opacity = '1';
-            floatingBtn.style.pointerEvents = 'auto';
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    observer.observe(subscribeSection);
-  }
 </script>

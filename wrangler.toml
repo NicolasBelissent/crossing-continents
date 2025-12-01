@@ -9,3 +9,9 @@ cwd = "."
 format = "service-worker"
 
 pages_build_output_dir = "dist"
+
+# KV namespace for storing subscribers
+[[kv_namespaces]]
+binding = "SUBSCRIBERS_KV"
+id = "f6491f34c814469d9f765a4d11c163b8"
+preview_id = "f296c18d4ecb42b0b86054792f5c7e1d"

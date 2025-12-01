@@ -9,7 +9,7 @@ import { SITE, SOCIALS } from "@/consts";
       <div class="text-sm opacity-60">
         © {new Date().getFullYear()} {SITE.NAME}. All rights reserved.
       </div>
-      <div class="flex gap-4">
+      <div class="flex gap-4 items-center">
         {SOCIALS.map((social) => (
           <a
             href={social.HREF}
@@ -20,6 +20,12 @@ import { SITE, SOCIALS } from "@/consts";
             {social.NAME}
           </a>
         ))}
+        <button
+          id="contact-btn"
+          class="text-sm hover:opacity-70 transition-opacity cursor-pointer"
+        >
+          email
+        </button>
       </div>
     </div>
   </Container>

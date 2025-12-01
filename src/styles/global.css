@@ -15,7 +15,7 @@
   src: url('/fonts/VCR_OSD_MONO.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  font-display: block;
 }
 
 @font-face {
@@ -52,28 +52,14 @@ body {
   @apply font-sans antialiased;
   @apply flex flex-col;
   @apply text-black;
-}
-
-body:not(.dark) {
-  background-color: #EBF52E;
-}
-
-body.dark {
-  background-color: #FC2F00;
-  @apply text-white;
+  isolation: isolate;
+  /* Don't set default background - JS will set it immediately */
 }
 
 header {
   @apply fixed top-0 left-0 right-0 z-50 py-5;
   @apply backdrop-blur-sm saturate-200;
-}
-
-header:not(.dark header) {
-  background-color: rgba(235, 245, 46, 0.75);
-}
-
-.dark header {
-  background-color: rgba(252, 47, 0, 0.75);
+  /* Background will be set by JS to match body color */
 }
 
 main {
@@ -88,6 +74,35 @@ article {
   @apply max-w-full prose dark:prose-invert prose-img:mx-auto prose-img:my-auto;
   @apply prose-headings:font-display prose-headings:font-semibold prose-headings:text-2xl prose-p:font-sans;
   @apply prose-headings:text-black prose-headings:dark:text-white;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Text content creates a "shield" that blocks the road */
+h1, h2, h3, h4, h5, h6, p, li, button, input, textarea, label, div {
+  position: relative;
+  z-index: 15;
+}
+
+/* Use VCR font for all headers */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'VCR OSD Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Add a pseudo-element background that blocks the road only where text exists */
+h1::before, h2::before, h3::before, h4::before, h5::before, h6::before,
+p::before, li::before, button::before, label::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background-color: inherit;
+  z-index: -1;
+  border-radius: 2px;
 }
 
 @layer utilities {

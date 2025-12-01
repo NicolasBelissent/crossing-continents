@@ -1,0 +1,226 @@
+<!-- Contact Modal -->
+<div id="contact-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4" style="background-color: rgba(0, 0, 0, 0.7);">
+  <div id="contact-modal-content" class="contact-modal-content relative w-full max-w-md rounded-lg p-8 shadow-2xl">
+    <button
+      id="close-modal"
+      class="absolute top-4 right-4 text-2xl hover:opacity-70 transition-opacity"
+      aria-label="Close"
+    >
+      ×
+    </button>
+
+    <h2 class="text-2xl font-bold mb-6 font-vcr uppercase tracking-wider">Get in Touch</h2>
+
+    <form id="contact-form" class="space-y-4">
+      <div>
+        <label for="contact-email" class="block text-sm font-medium mb-2">
+          Your Email
+        </label>
+        <input
+          type="email"
+          id="contact-email"
+          name="email"
+          required
+          class="contact-input w-full px-4 py-3 rounded-lg border-2 outline-none transition-all"
+          placeholder="your@email.com"
+        />
+      </div>
+
+      <div>
+        <label for="contact-subject" class="block text-sm font-medium mb-2">
+          Subject
+        </label>
+        <input
+          type="text"
+          id="contact-subject"
+          name="subject"
+          required
+          class="contact-input w-full px-4 py-3 rounded-lg border-2 outline-none transition-all"
+          placeholder="What's this about?"
+        />
+      </div>
+
+      <div>
+        <label for="contact-message" class="block text-sm font-medium mb-2">
+          Message
+        </label>
+        <textarea
+          id="contact-message"
+          name="message"
+          required
+          rows="5"
+          class="contact-input w-full px-4 py-3 rounded-lg border-2 outline-none transition-all resize-none"
+          placeholder="Your message..."
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        id="contact-submit-btn"
+        class="w-full px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:opacity-80"
+      >
+        Send Message
+      </button>
+
+      <p id="contact-status" class="text-sm text-center opacity-0 transition-opacity duration-300"></p>
+    </form>
+  </div>
+</div>
+
+<script>
+  const contactBtn = document.getElementById('contact-btn');
+  const contactModal = document.getElementById('contact-modal');
+  const contactModalContent = document.getElementById('contact-modal-content');
+  const closeModal = document.getElementById('close-modal');
+  const contactForm = document.getElementById('contact-form');
+  const contactStatus = document.getElementById('contact-status');
+
+  // Function to set modal colors based on page background
+  function setModalColors() {
+    const bodyBg = document.body.style.backgroundColor;
+    const bodyColor = document.body.style.color;
+
+    // Check if it's red background (#e5302d) or yellow (#EBF52E)
+    const isRed = bodyBg.includes('229, 48, 45') || bodyBg.includes('#e5302d');
+
+    if (contactModalContent) {
+      if (isRed) {
+        // Red background page -> Yellow modal with black text
+        contactModalContent.style.backgroundColor = '#EBF52E';
+        contactModalContent.style.color = '#000000';
+      } else {
+        // Yellow background page -> Red modal with white text
+        contactModalContent.style.backgroundColor = '#e5302d';
+        contactModalContent.style.color = '#ffffff';
+      }
+    }
+
+    // Style form inputs - white background with black text (always)
+    const inputs = document.querySelectorAll('.contact-input');
+    inputs.forEach(input => {
+      input.style.backgroundColor = '#ffffff';
+      input.style.color = '#000000';
+      input.style.borderColor = 'rgba(0, 0, 0, 0.2)';
+    });
+
+    // Style submit button - same color as modal but darker shade
+    const submitBtn = document.getElementById('contact-submit-btn');
+    if (submitBtn) {
+      if (isRed) {
+        // Yellow modal -> Darker yellow button (#d4db1a) with black text
+        submitBtn.style.backgroundColor = '#d4db1a';
+        submitBtn.style.color = '#000000';
+      } else {
+        // Red modal -> Darker red button (#c42824) with white text
+        submitBtn.style.backgroundColor = '#c42824';
+        submitBtn.style.color = '#ffffff';
+      }
+    }
+  }
+
+  // Open modal
+  contactBtn?.addEventListener('click', () => {
+    setModalColors();
+    contactModal?.classList.remove('hidden');
+    contactModal?.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  });
+
+  // Close modal
+  const closeContactModal = () => {
+    contactModal?.classList.add('hidden');
+    contactModal?.classList.remove('flex');
+    document.body.style.overflow = '';
+  };
+
+  closeModal?.addEventListener('click', closeContactModal);
+
+  // Close on backdrop click
+  contactModal?.addEventListener('click', (e) => {
+    if (e.target === contactModal) {
+      closeContactModal();
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && contactModal?.classList.contains('flex')) {
+      closeContactModal();
+    }
+  });
+
+  // Handle form submission
+  contactForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(contactForm as HTMLFormElement);
+    const data = {
+      email: formData.get('email'),
+      subject: formData.get('subject'),
+      message: formData.get('message'),
+    };
+
+    // Show loading state
+    if (contactStatus) {
+      contactStatus.textContent = 'Sending...';
+      contactStatus.style.opacity = '1';
+    }
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        if (contactStatus) {
+          contactStatus.textContent = '✓ Message sent successfully!';
+          contactStatus.style.color = '#10b981';
+        }
+        (contactForm as HTMLFormElement).reset();
+
+        // Close modal after 2 seconds
+        setTimeout(() => {
+          closeContactModal();
+          if (contactStatus) {
+            contactStatus.style.opacity = '0';
+          }
+        }, 2000);
+      } else {
+        throw new Error('Failed to send message');
+      }
+    } catch (error) {
+      if (contactStatus) {
+        contactStatus.textContent = '✗ Failed to send. Please try again.';
+        contactStatus.style.color = '#ef4444';
+      }
+    }
+
+    // Hide status after 5 seconds
+    setTimeout(() => {
+      if (contactStatus) {
+        contactStatus.style.opacity = '0';
+      }
+    }, 5000);
+  });
+</script>
+
+<style>
+  .contact-modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+  }
+
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

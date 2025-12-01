@@ -2,6 +2,7 @@
 import Head from "@/components/Head.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import ContactModal from "@/components/ContactModal.astro";
 
 interface Props {
   title?: string;
@@ -16,23 +17,35 @@ const { title, description } = Astro.props;
   <head>
     <Head title={title} description={description} />
   </head>
-  <body class="text-black" style="background-color: #EBF52E; transition: background-color 0.2s, color 0.2s;">
+  <body class="text-black" style="position: relative; transition: background-color 0.2s, color 0.2s;">
     <!-- Winding road with solid and dotted lines -->
-    <svg id="road-svg" style="position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; z-index: 0;">
+    <svg id="road-svg" style="position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; z-index: 5;">
       <!-- Outer solid lines -->
-      <path id="road-left" fill="none" stroke="rgba(0, 0, 0, 1)" stroke-width="3" stroke-linecap="round"/>
-      <path id="road-right" fill="none" stroke="rgba(0, 0, 0, 1)" stroke-width="3" stroke-linecap="round"/>
+      <path id="road-left" fill="none" stroke="rgba(0, 0, 0, 0.4)" stroke-width="3" stroke-linecap="round"/>
+      <path id="road-right" fill="none" stroke="rgba(0, 0, 0, 0.4)" stroke-width="3" stroke-linecap="round"/>
       <!-- Center dotted line -->
-      <path id="road-center" fill="none" stroke="rgba(0, 0, 0, 1)" stroke-width="3" stroke-dasharray="20,20" stroke-linecap="round"/>
+      <path id="road-center" fill="none" stroke="rgba(0, 0, 0, 0.4)" stroke-width="3" stroke-dasharray="20,20" stroke-linecap="round"/>
     </svg>
 
     <main style="position: relative; z-index: 10;">
       <slot />
     </main>
     <Footer />
+    <ContactModal />
 
     <script>
       const ROAD_WIDTH = 10; // Pixels between center line and edge lines
+
+      // Original two colors
+      const colors = [
+        { bg: '#EBF52E', text: '#000000' }, // Yellow with black text
+        { bg: '#e5302d', text: '#ffffff' }  // Red with white text
+      ];
+
+      // Randomly pick ONE of the two original colors for this page load
+      const selectedColor = colors[Math.floor(Math.random() * colors.length)];
+      const pageColor = selectedColor.bg;
+      const textColor = selectedColor.text;
 
       function createWindingRoad() {
         const svg = document.getElementById('road-svg');
@@ -100,47 +113,6 @@ const { title, description } = Astro.props;
         rightPath.setAttribute('d', rightPathData);
       }
 
-      function updateColorBasedOnRoad(event) {
-        const centerPath = document.getElementById('road-center');
-        const body = document.body;
-        const html = document.documentElement;
-
-        if (!centerPath) return;
-
-        const cursorX = event.clientX;
-        const cursorY = event.clientY + window.scrollY;
-
-        // Find closest point on path to cursor Y position
-        const pathLength = centerPath.getTotalLength();
-        let closestPoint = null;
-        let minDistance = Infinity;
-
-        for (let i = 0; i <= pathLength; i += 10) {
-          const point = centerPath.getPointAtLength(i);
-          const distance = Math.abs(point.y - cursorY);
-          if (distance < minDistance) {
-            minDistance = distance;
-            closestPoint = point;
-          }
-        }
-
-        if (closestPoint) {
-          const isLeftOfRoad = cursorX < closestPoint.x;
-
-          if (isLeftOfRoad) {
-            body.style.backgroundColor = '#EBF52E';
-            body.style.color = '#000000';
-            html.classList.remove('red-mode');
-            html.classList.add('yellow-mode');
-          } else {
-            body.style.backgroundColor = '#e5302d';
-            body.style.color = '#ffffff';
-            html.classList.remove('yellow-mode');
-            html.classList.add('red-mode');
-          }
-        }
-      }
-
       function updateRoadHeight() {
         const svg = document.getElementById('road-svg');
         const footer = document.querySelector('footer');
@@ -150,11 +122,22 @@ const { title, description } = Astro.props;
         }
       }
 
-      // Initialize
-      createWindingRoad();
+      // Set the page color once and never change it
+      const body = document.body;
+      body.style.backgroundColor = pageColor;
+      body.style.color = textColor;
 
-      // Add mousemove listener
-      document.addEventListener('mousemove', updateColorBasedOnRoad);
+      // Set header background to match
+      const header = document.querySelector('header');
+      if (header) {
+        const rgb = pageColor.match(/\d+/g);
+        if (rgb) {
+          header.style.backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0.75)`;
+        }
+      }
+
+      // Initialize road
+      createWindingRoad();
 
       // Update on scroll and resize
       window.addEventListener('scroll', updateRoadHeight);
@@ -166,7 +149,6 @@ const { title, description } = Astro.props;
       // Re-initialize on view transitions
       document.addEventListener('astro:after-swap', () => {
         createWindingRoad();
-        document.addEventListener('mousemove', updateColorBasedOnRoad);
       });
     </script>
   </body>

@@ -1,0 +1,6 @@
+# Resend API Key - Get yours at https://resend.com/api-keys
+RESEND_API_KEY=re_your_api_key_here
+
+# Admin secret for sending notifications (use a strong random string)
+# Generate one with: openssl rand -hex 32
+ADMIN_SECRET=your_random_secret_here
