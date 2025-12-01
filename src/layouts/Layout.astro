@@ -10,14 +10,21 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+
+// Generate random color on server-side
+const colors = [
+  { bg: '#EBF52E', text: '#000000' }, // Yellow with black text
+  { bg: '#e5302d', text: '#ffffff' }  // Red with white text
+];
+const randomColor = colors[Math.floor(Math.random() * colors.length)];
 ---
 
 <!doctype html>
-<html lang="en" style="background-color: #EBF52E;">
+<html lang="en" style={`background-color: ${randomColor.bg};`}>
   <head>
     <Head title={title} description={description} />
   </head>
-  <body class="text-black" style="position: relative; transition: background-color 0.2s, color 0.2s;">
+  <body class="text-black" style={`position: relative; transition: background-color 0.2s, color 0.2s; background-color: ${randomColor.bg}; color: ${randomColor.text};`}>
     <!-- Winding road with solid and dotted lines -->
     <svg id="road-svg" style="position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; z-index: 5;">
       <!-- Outer solid lines -->
@@ -33,19 +40,12 @@ const { title, description } = Astro.props;
     <Footer />
     <ContactModal />
 
-    <script>
+    <script define:vars={{ serverColor: randomColor }}>
       const ROAD_WIDTH = 10; // Pixels between center line and edge lines
 
-      // Original two colors
-      const colors = [
-        { bg: '#EBF52E', text: '#000000' }, // Yellow with black text
-        { bg: '#e5302d', text: '#ffffff' }  // Red with white text
-      ];
-
-      // Randomly pick ONE of the two original colors for this page load
-      const selectedColor = colors[Math.floor(Math.random() * colors.length)];
-      const pageColor = selectedColor.bg;
-      const textColor = selectedColor.text;
+      // Use the server-generated color
+      const pageColor = serverColor.bg;
+      const textColor = serverColor.text;
 
       function createWindingRoad() {
         const svg = document.getElementById('road-svg');
@@ -122,14 +122,7 @@ const { title, description } = Astro.props;
         }
       }
 
-      // Set the page color once and never change it
-      const body = document.body;
-      const html = document.documentElement;
-      body.style.backgroundColor = pageColor;
-      body.style.color = textColor;
-      html.style.backgroundColor = pageColor;
-
-      // Set header background to match
+      // Set header background to match (body/html already set by server)
       const header = document.querySelector('header');
       if (header) {
         const rgb = pageColor.match(/\d+/g);
