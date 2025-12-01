@@ -13,7 +13,7 @@ const { title, description } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" style="background-color: #EBF52E;">
   <head>
     <Head title={title} description={description} />
   </head>
@@ -124,8 +124,10 @@ const { title, description } = Astro.props;
 
       // Set the page color once and never change it
       const body = document.body;
+      const html = document.documentElement;
       body.style.backgroundColor = pageColor;
       body.style.color = textColor;
+      html.style.backgroundColor = pageColor;
 
       // Set header background to match
       const header = document.querySelector('header');
